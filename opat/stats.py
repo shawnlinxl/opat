@@ -16,7 +16,7 @@
 import pandas as pd
 import numpy as np
 
-def cum_returns(returns):
+def cum_return(returns):
     """
     Compute cumulative returns from simple returns.
     Parameters
@@ -40,24 +40,19 @@ def cum_returns(returns):
     if len(returns) < 1:
         return returns.copy()
 
-    # Fill NA with 0
-    nan_mask = np.isnan(returns)
-    if np.any(nan_mask):
-        returns = returns.copy()
-        returns[nan_mask] = 0
-
     # Allocate Memory
-    result = np.empty_like(returns)
+    result = returns.copy()
 
     # Compute cumulative return
-    np.add(returns, 1, out=result)
-    result.cumprod(axis=0)
-    np.subtract(result, 1, out=result)
-
+    result = result.add(1, fill_value = 0)
+    result = result.cumprod(skipna=True)
+    result = result.add(-1)
+    
     return result
 
+
 def vami(returns, starting_value = 1000):
-     """
+    """
     Compute VAMI (Value Added Monthly Index) from simple returns.
     Parameters
     ----------
@@ -79,7 +74,9 @@ def vami(returns, starting_value = 1000):
     vami : array-like
         Series of cumulative returns.
     """
+    result = cum_return(returns)
+    result = result.add(1)
+    result = result.multiply(starting_value)
 
-    result = cum_returns(returns)
-    np.add(result, 1, out=result)
-    np.multiply(result, starting_value, out=result)
+    return result
+
