@@ -35,7 +35,7 @@ before_install:
   - conda info -a
 
 install:
-  - conda create -q -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas=$PANDAS_VERSION
+  - conda create -q -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas=$PANDAS_VERSION flake8
   - pip install nose_parameterized
 
 before_script:
