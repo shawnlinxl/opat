@@ -1,9 +1,11 @@
 from opat.stats import (cum_return,
                         vami,)
+
+from opat.io import read_ts_csv
+
 import pandas as pd
 
-returns_data = pd.read_csv(r"opat\tests\test_data\fund_return.csv", parse_dates=[0])
-returns_data = returns_data.set_index("date")
+returns_data = read_ts_csv(r"opat\tests\test_data\fund_return.csv")
 
 print(returns_data.head())
 print(type(returns_data))
