@@ -14,7 +14,6 @@
 # limitations under the License.
 
 import pandas as pd
-import numpy as np
 
 def cum_return(returns):
     """
