@@ -15,10 +15,14 @@ before_install:
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
-  - conda update --yes conda
+  # required for using mkl-service
+  - export MKL_THREADING_LAYER=GNU
+  - hash -r
+  - conda config --set always_yes yes --set changeps1 no
+  - conda update -q conda
 
 install:
-  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8 nose cython mkl-service
   - source activate testenv
   - pip install nose_parameterized
 
