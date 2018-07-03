@@ -3,7 +3,12 @@ from opat.stats import (cum_return,
 
 from opat.io import read_ts_csv
 
-returns_data = read_ts_csv(r"opat\tests\test_data\fund_return.csv")
+import os
+
+__location__ = os.path.realpath(os.path.join(os.getcwd(),
+                                os.path.dirname(__file__)))
+
+returns_data = read_ts_csv(__location__ + '/test_data/fund_return.csv')
 
 print(returns_data.head())
 print(type(returns_data))
