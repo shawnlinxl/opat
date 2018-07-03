@@ -3,8 +3,6 @@ from opat.stats import (cum_return,
 
 from opat.io import read_ts_csv
 
-import pandas as pd
-
 returns_data = read_ts_csv(r"opat\tests\test_data\fund_return.csv")
 
 print(returns_data.head())
