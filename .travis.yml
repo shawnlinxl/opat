@@ -1,20 +1,9 @@
 language: python
-sudo: false
 
 python: 
   - 2.7
   - 3.5
   - 3.6
-
-env:
-- PANDAS_VERSION=0.18.1
-- PANDAS_VERSION=0.19.2
-- PANDAS_VERSION=0.20.3
-
-matrix:
-  exclude:
-  - python: 3.6
-    env: PANDAS_VERSION=0.18.1
 
 before_install:
   # We do this conditionally because it saves us some downloading if the
@@ -26,16 +15,10 @@ before_install:
     fi
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
-  # required for using mkl-service
-  - export MKL_THREADING_LAYER=GNU
-  - hash -r
-  - conda config --set always_yes yes --set changeps1 no
-  - conda update -q conda
-  # Useful for debugging any issues with conda
-  - conda info -a
+  - conda update --yes conda
 
 install:
-  - conda create -q -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas=$PANDAS_VERSION flake8
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8
   - source activate testenv
   - pip install nose_parameterized
 
