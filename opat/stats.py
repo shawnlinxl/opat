@@ -15,6 +15,34 @@
 
 import pandas as pd
 
+
+# Return related statistics
+def total_return(returns):
+    """
+    Compute total return from simple returns.
+    Parameters
+    ----------
+    returns : pd.Series of periodic returns
+
+    Returns
+    -------
+    total_returns : array-like
+        Series of total returns.
+    """
+    if len(returns) < 1:
+        return returns.copy()
+
+    # Allocate Memory
+    result = returns.copy()
+
+    # Compute cumulative return
+    result = result.add(1, fill_value=0)
+    result = result.prod(skipna=True)
+    result = result.add(-1)
+
+    return result
+
+
 def cum_return(returns):
     """
     Compute cumulative returns from simple returns.
@@ -34,14 +62,14 @@ def cum_return(returns):
     result = returns.copy()
 
     # Compute cumulative return
-    result = result.add(1, fill_value = 0)
+    result = result.add(1, fill_value=0)
     result = result.cumprod(skipna=True)
     result = result.add(-1)
-    
+
     return result
 
 
-def vami(returns, starting_value = 1000):
+def vami(returns, starting_value=1000):
     """
     Compute VAMI (Value Added Monthly Index) from simple returns.
     Parameters
@@ -58,7 +86,7 @@ def vami(returns, starting_value = 1000):
            cumulated.
     starting_value: float, optional
        The starting returns.
-    
+
     Returns
     -------
     vami : array-like
@@ -69,6 +97,7 @@ def vami(returns, starting_value = 1000):
     result = result.multiply(starting_value)
 
     return result
+
 
 def weekly_return(returns):
     """
@@ -88,11 +117,12 @@ def weekly_return(returns):
     result = returns.copy()
 
     # Compute cumulative return
-    result = result.add(1, fill_value = 0)
-    result = result.groupby(pd.Grouper(freq = "W")).prod()
+    result = result.add(1, fill_value=0)
+    result = result.groupby(pd.Grouper(freq="W")).prod()
     result = result - 1
-    
+
     return result
+
 
 def monthly_return(returns):
     """
@@ -112,11 +142,12 @@ def monthly_return(returns):
     result = returns.copy()
 
     # Compute cumulative return
-    result = result.add(1, fill_value = 0)
-    result = result.groupby(pd.Grouper(freq = "M")).prod()
+    result = result.add(1, fill_value=0)
+    result = result.groupby(pd.Grouper(freq="M")).prod()
     result = result - 1
-    
+
     return result
+
 
 def quarterly_return(returns):
     """
@@ -136,11 +167,12 @@ def quarterly_return(returns):
     result = returns.copy()
 
     # Compute cumulative return
-    result = result.add(1, fill_value = 0)
-    result = result.groupby(pd.Grouper(freq = "Q")).prod()
+    result = result.add(1, fill_value=0)
+    result = result.groupby(pd.Grouper(freq="Q")).prod()
     result = result - 1
-    
+
     return result
+
 
 def annual_return(returns):
     """
@@ -160,11 +192,12 @@ def annual_return(returns):
     result = returns.copy()
 
     # Compute cumulative return
-    result = result.add(1, fill_value = 0)
-    result = result.groupby(pd.Grouper(freq = "Q")).prod()
+    result = result.add(1, fill_value=0)
+    result = result.groupby(pd.Grouper(freq="Q")).prod()
     result = result - 1
-    
+
     return result
+
 
 def period_return(returns, period):
     """
@@ -187,5 +220,10 @@ def period_return(returns, period):
 
     result = returns.copy()
     result = return_func[period](returns)
-    
+
     return result
+
+# def annualized_return(return):
+
+
+# Risk related statistics

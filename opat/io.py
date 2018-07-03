@@ -15,6 +15,7 @@
 
 import pandas as pd
 
+
 def read_ts_csv(filepath):
     """
     Load timeseries from csv, the first column must be date indices
@@ -25,9 +26,9 @@ def read_ts_csv(filepath):
     -------
     time indexed Pandas Dataframe
     """
-    result = pd.read_csv(filepath, 
+    result = pd.read_csv(filepath,
                          parse_dates=[0],
-                         header = 0,
-                         index_col = 0)
+                         header=0,
+                         index_col=0)
 
     return(result)
