@@ -14,6 +14,7 @@
 # limitations under the License.
 
 import pandas as pd
+from datetime import datetime, timedelta
 
 
 # Return related statistics
@@ -102,6 +103,7 @@ def vami(returns, starting_value=1000):
 def weekly_return(returns):
     """
     Compute weekly returns from higher frequency returns
+    Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a week
 
@@ -127,6 +129,7 @@ def weekly_return(returns):
 def monthly_return(returns):
     """
     Compute monthly returns from higher frequency returns
+    Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a month
 
@@ -152,6 +155,7 @@ def monthly_return(returns):
 def quarterly_return(returns):
     """
     Compute quarterly returns from higher frequency returns
+    Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a quarter
 
@@ -177,6 +181,7 @@ def quarterly_return(returns):
 def annual_return(returns):
     """
     Compute annual returns from higher frequency returns
+    Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a year
 
@@ -202,6 +207,7 @@ def annual_return(returns):
 def period_return(returns, period):
     """
     Convert higher frequency returns
+    Parameters
     ----------
     returns : pd.Series of returns with higher frequency than the target
       periodicity
@@ -223,7 +229,42 @@ def period_return(returns, period):
 
     return result
 
-# def annualized_return(return):
+
+def annualized_return(returns, start=None, end=None):
+    """
+    Convert periodic returns into annualized return
+    Parameters
+    ----------
+    returns : pd.Series of returns
+    start\end : string in %Y%m%d. Defaults to None. If given, use start\end
+    as the start\end date of the series. This is useful for series that's
+    already in a lower frequency (e.g. monthly returns) but the exact start\end
+    dates are known. Providing start\end in this case will generate more
+    accurate annualized returns.
+
+    Returns
+    -------
+    annualized_returns : array-like
+        Series of annualized returns.
+    """
+    result = returns.copy()
+
+    if (start is None):
+        start = returns.index[0]
+    else:
+        start = datetime.strptime(start, "%Y-%m-%d")
+    if (end is None):
+        end = returns.index[-1]
+    else:
+        end = datetime.strptime(end, "%Y-%m-%d")
+
+    diff_in_years = ((end - start).total_seconds() /
+                     timedelta(days=365.25).total_seconds())
+
+    result = total_return(result)
+    result = result**(1/diff_in_years)
+
+    return result
 
 
 # Risk related statistics

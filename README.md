@@ -1,6 +1,6 @@
 # opat: Open Portfolio Analysis Tool
 
-[![build status](https://api.travis-ci.org/shawnlinxl/opat.png?branch=master)](https://travis-ci.org/shawnlinxl/opat)
+[![build status](https://travis-ci.org/shawnlinxl/opat.svg?branch=master)](https://travis-ci.org/shawnlinxl/opat)
 
 opat is a Python library for performance and risk analysis of
 financial portfolios developed by Shawn Lin
