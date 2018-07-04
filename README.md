@@ -20,6 +20,3 @@ Provide basic portfolio performance and risk statistics
 
 ### IO
 Read common format of financial time series
-
-### Backtest
-Run backtest based on strategy
