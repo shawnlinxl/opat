@@ -1,4 +1,5 @@
 language: python
+sudo: false
 
 python: 
   - 2.7
@@ -24,13 +25,14 @@ before_install:
 install:
   - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8 nose cython mkl-service
   - source activate testenv
+  - pip install codecov
   - pip install nose_parameterized
 
 before_script:
   - "flake8 opat"
 
 script:
-  - nosetests $TESTCMD
+  - nosetests $TESTCMD — with-coverage
 
 notifications:
   email: false
