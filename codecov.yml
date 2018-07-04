@@ -1,0 +1,3 @@
+ignore:
+  - opat/_version.py
+  - versioneer.py
