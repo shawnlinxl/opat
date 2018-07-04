@@ -34,6 +34,9 @@ before_script:
 script:
   - nosetests $TESTCMD --with-coverage
 
+after_script:
+  codecov
+
 notifications:
   email: false
 
