@@ -211,6 +211,11 @@ def period_return(returns, period):
     ----------
     returns : pd.Series of returns with higher frequency than the target
       periodicity
+    period : the target periodicity to convert the returns to, options are
+        - week
+        - month
+        - quarter
+        - year
 
     Returns
     -------
