@@ -1,5 +1,6 @@
 # opat: Open Portfolio Analysis Tool
 
+[![codecov](https://codecov.io/gh/shawnlinxl/opat/branch/master/graph/badge.svg)](https://codecov.io/gh/shawnlinxl/opat)
 [![build status](https://travis-ci.org/shawnlinxl/opat.svg?branch=master)](https://travis-ci.org/shawnlinxl/opat)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
