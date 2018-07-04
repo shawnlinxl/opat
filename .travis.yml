@@ -32,7 +32,7 @@ before_script:
   - "flake8 opat"
 
 script:
-  - nosetests $TESTCMD — with-coverage
+  - nosetests $TESTCMD --with-coverage
 
 notifications:
   email: false
