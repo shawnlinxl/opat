@@ -267,7 +267,7 @@ def annualized_return(returns, start=None, end=None):
                      timedelta(days=365.25).total_seconds())
 
     result = total_return(result)
-    result = (result.add(1) ** (1/diff_in_years)) - 1
+    result = (result.add(1) ** (1 / diff_in_years)) - 1
 
     return result
 
