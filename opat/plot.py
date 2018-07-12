@@ -40,15 +40,19 @@ def hc_stock_return(cumulative_returns, title=None, width="800px", height="600px
     """
     Convert time series data to highchart series format
     ----------
-    df : pd.Series, pd.DataFrame
-        A pandas dataframe with datetime as index
+    cumulative_returns : JSON
+        A highchart JSON with datetime as index and cumulative_returns as
+        value.
+    title: string
+        title of the plot
+    width: string
+        plot width in pixels
+    height: string
+        plot height in pixels
 
     Returns
     -------
-    highchart_series : json
-        JSON format string of time which has column and time in the format
-        [{'name' : col1,
-          'data' : [[date1, value1], [date2, value2]]}]
+    highstock object: HTML
     """
 
     if title is None:
