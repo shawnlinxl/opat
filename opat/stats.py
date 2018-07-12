@@ -280,7 +280,7 @@ def annualized_std(returns, start_date=None, end_date=None):
     ----------
     returns : pd.Series of returns
     start_date\end_date : string in %Y%m%d. Defaults to None. If given, use
-    start\end as the start\end date of the series. This is useful for series 
+    start\end as the start\end date of the series. This is useful for series
     that's already in a lower frequency (e.g. monthly returns) but the exact
     start\end dates are known. Providing start\end in this case will generate
     more accurate annualized standard deviations.

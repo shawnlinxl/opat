@@ -3,7 +3,8 @@ import os
 from opat.stats import (cum_return,
                         vami,
                         period_return,
-                        annualized_return)
+                        annualized_return,
+                        annualized_std)
 
 from opat.plot import (time_series_to_hc_series,
                        hc_stock_return)
