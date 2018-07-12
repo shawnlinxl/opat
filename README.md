@@ -9,7 +9,7 @@ financial portfolios developed by Shawn Lin
 
 ## Installation
 
-To install pyfolio, run:
+To install opat, run:
 
 ```bash
 python setup.py install
