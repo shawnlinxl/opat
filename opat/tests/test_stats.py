@@ -1,3 +1,5 @@
+import os
+
 from opat.stats import (cum_return,
                         vami,
                         period_return,
@@ -8,10 +10,9 @@ from opat.plot import (time_series_to_hc_series,
 
 from opat.io import read_ts_csv
 
-import os
 
-__location__ = os.path.realpath(os.path.join(os.getcwd(),
-                                os.path.dirname(__file__)))
+__location__ = os.path.realpath(os.path.join(
+    os.getcwd(), os.path.dirname(__file__)))
 
 returns_data = read_ts_csv(__location__ + '/test_data/fund_return.csv')
 
