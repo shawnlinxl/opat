@@ -16,7 +16,7 @@
 import numpy as np
 
 
-def time_series_to_hc_series(df):
+def ts_to_hc_series(df):
     """
     Convert time series data to highchart series format
     ----------
@@ -30,17 +30,19 @@ def time_series_to_hc_series(df):
         [{'name' : col1,
           'data' : [[date1, value1], [date2, value2]]}]
     """
+
+    # Put dataframe into highchart format
     result = [{'name': key, 'data': list([list(a) for a in zip(value.index.astype(np.int64) // 10 ** 6, value.values)])}
               for key, value in df.items()]
 
     return(result)
 
 
-def hc_stock_return(cumulative_returns, title=None, width="800px", height="600px"):
+def highstock_line(hc_data, title=None, width="800px", height="600px"):
     """
     Convert time series data to highchart series format
     ----------
-    cumulative_returns : JSON
+    hc_data : JSON
         A highchart JSON with datetime as index and cumulative_returns as
         value.
     title: string
@@ -124,6 +126,6 @@ def hc_stock_return(cumulative_returns, title=None, width="800px", height="600px
     template = template.format(width=width,
                                height=height,
                                title=title,
-                               data=cumulative_returns)
+                               data=hc_data)
 
     return(template)

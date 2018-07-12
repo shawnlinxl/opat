@@ -6,8 +6,8 @@ from opat.stats import (cum_return,
                         annualized_return,
                         annualized_std)
 
-from opat.plot import (time_series_to_hc_series,
-                       hc_stock_return)
+from opat.plot import (ts_to_hc_series,
+                       highstock_line)
 
 from opat.io import read_ts_csv
 
@@ -27,8 +27,8 @@ print(period_return(returns_data, "quarter").head())
 print(annualized_return(returns_data))
 print(annualized_std(returns_data))
 
-hc_series = time_series_to_hc_series(vami(returns_data))
-html_string = hc_stock_return(hc_series, title="VAMI")
+hc_series = ts_to_hc_series(vami(returns_data))
+html_string = highstock_line(hc_series, title="VAMI")
 
 with open(__location__ + '/examples/vami.html', 'w') as html_file:
     html_file.write(html_string)
