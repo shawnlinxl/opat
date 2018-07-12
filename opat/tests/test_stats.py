@@ -24,6 +24,7 @@ print(period_return(returns_data, "week").head())
 print(period_return(returns_data, "year").head())
 print(period_return(returns_data, "quarter").head())
 print(annualized_return(returns_data))
+print(annualized_std(returns_data))
 
 hc_series = time_series_to_hc_series(vami(returns_data))
 html_string = hc_stock_return(hc_series, title="VAMI")

@@ -198,7 +198,7 @@ def annual_return(returns):
 
     # Compute cumulative return
     result = result.add(1, fill_value=0)
-    result = result.groupby(pd.Grouper(freq="Q")).prod()
+    result = result.groupby(pd.Grouper(freq="A")).prod()
     result = result - 1
 
     return result
@@ -235,17 +235,17 @@ def period_return(returns, period):
     return result
 
 
-def annualized_return(returns, start=None, end=None):
+def annualized_return(returns, start_date=None, end_date=None):
     """
     Convert periodic returns into annualized return
     Parameters
     ----------
     returns : pd.Series of returns
-    start\end : string in %Y%m%d. Defaults to None. If given, use start\end
-    as the start\end date of the series. This is useful for series that's
-    already in a lower frequency (e.g. monthly returns) but the exact start\end
-    dates are known. Providing start\end in this case will generate more
-    accurate annualized returns.
+    start_date\end_date : string in %Y%m%d. Defaults to None. If given, use
+    start\end as the start\end date of the series. This is useful for series
+    that's already in a lower frequency (e.g. monthly returns) but the exact
+    start\end dates are known. Providing start\end in this case will generate
+    more accurate annualized returns.
 
     Returns
     -------
@@ -254,16 +254,16 @@ def annualized_return(returns, start=None, end=None):
     """
     result = returns.copy()
 
-    if (start is None):
-        start = returns.index[0]
+    if start_date is None:
+        start_date = returns.index[0]
     else:
-        start = datetime.strptime(start, "%Y-%m-%d")
-    if (end is None):
-        end = returns.index[-1]
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    if end_date is None:
+        end_date = returns.index[-1]
     else:
-        end = datetime.strptime(end, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-    diff_in_years = ((end - start).total_seconds() /
+    diff_in_years = ((end_date - start_date).total_seconds() /
                      timedelta(days=365.25).total_seconds())
 
     result = total_return(result)
@@ -273,3 +273,37 @@ def annualized_return(returns, start=None, end=None):
 
 
 # Risk related statistics
+def annualized_std(returns, start_date=None, end_date=None):
+    """
+    Compute annualized standard deviation (volatility) from periodic returns
+    Parameters
+    ----------
+    returns : pd.Series of returns
+    start_date\end_date : string in %Y%m%d. Defaults to None. If given, use
+    start\end as the start\end date of the series. This is useful for series 
+    that's already in a lower frequency (e.g. monthly returns) but the exact
+    start\end dates are known. Providing start\end in this case will generate
+    more accurate annualized standard deviations.
+
+    Returns
+    -------
+    annualized_returns : array-like
+        Series of annualized returns.
+    """
+    result = returns.copy()
+
+    if start_date is None:
+        start_date = returns.index[0]
+    else:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+    if end_date is None:
+        end_date = returns.index[-1]
+    else:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+
+    diff_in_years = ((end_date - start_date).total_seconds() /
+                     timedelta(days=365.25).total_seconds())
+
+    result = result.std() * ((result.count() / diff_in_years) ** 0.5)
+
+    return result
