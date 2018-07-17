@@ -15,7 +15,7 @@ AUTHOR = 'Shawn Lin'
 AUTHOR_EMAIL = 'shawnlin.xl@gmail.com'
 URL = "https://github.com/shawnlinxl/opat"
 LICENSE = "Apache License, Version 2.0"
-VERSION = "0.1.0"
+VERSION = "0.0.2"
 
 classifiers = ['Development Status :: 1 - Planning',
                'Programming Language :: Python',
@@ -38,6 +38,7 @@ else:
 install_reqs = [
     'numpy>=1.11.1',
     'pandas>=0.18.1',
+    'fix_yahoo_finance>=0.0.22',
 ]
 
 test_reqs = []
