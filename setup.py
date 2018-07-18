@@ -6,7 +6,7 @@ import versioneer
 
 DISTNAME = 'opat'
 DESCRIPTION = "opat is a Python library for evaluatoin of financial portfolios"
-LONG_DESCRIPTION = """opat is a Python library for evaluatoin of financial 
+LONG_DESCRIPTION = """opat is a Python library for evaluatoin of financial
 portfolios. opat standands for Open Portfolio Analysis Tool.
 """
 MAINTAINER = 'Shawn Lin'
