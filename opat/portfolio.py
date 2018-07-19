@@ -58,18 +58,16 @@ def create_holdings(trades, start_date=None, end_date=None):
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
     # Create dataframe for output
-    holdings = pd.DataFrame(
-        columns=["Date", "Contract", "Type", "Average Cost", "Quantity"])
-    holdings_last = pd.DataFrame(
+    holdings_now = pd.DataFrame(
         columns=["Date", "Contract", "Type", "Average Cost", "Quantity"])
 
     # Holdings will be created for every trade day between the start_date
     # and end_date
     trade_days = pd.date_range(start_date, end_date, freq='B')
 
+    holdings = []
     for date in trade_days:
         # Initiate every day's holdings as previous day's holdings
-        holdings_now = holdings_last
         holdings_now["Date"] = date
 
         # When there are trades on the date, update the holdings to reflect
@@ -77,42 +75,42 @@ def create_holdings(trades, start_date=None, end_date=None):
         if date in trades.index:
             # Loop through each trade
             execution = trades[trades.index == date]
-            for index, row in execution.iterrows():
+            for row in execution.itertuples():
                 # Buy:  positive change in quantity
                 # Sell: negative change in quantity
-                if row["Action"] == "Buy":
-                    delta_quantity = row["Quantity"]
-                elif row["Action"] == "Sell":
-                    delta_quantity = -row["Quantity"]
+                if row.Action == "Buy":
+                    delta_quantity = row.Quantity
+                elif row.Action == "Sell":
+                    delta_quantity = -row.Quantity
                 else:
                     continue
 
                 # If the contract already exist in the current holdings,
                 # update the current holdings and recompute average cost
-                if row["Contract"] in holdings_now["Contract"].values:
+                if row.Contract in holdings_now["Contract"].values:
                     holdings_change = (
-                        holdings_now["Contract"] == row["Contract"])
-                    holdings_now.loc[holdings_change, "Quantity"] = (
-                        holdings_now.loc[holdings_change, "Quantity"] + delta_quantity)
+                        holdings_now["Contract"] == row.Contract)
                     # Average cost = (current cost * current quantity + new cost * change in quantity)/total quantity
                     holdings_now.loc[holdings_change, "Average Cost"] = (
                         holdings_now.loc[holdings_change, "Average Cost"] * holdings_now.loc[holdings_change, "Quantity"] +
-                        delta_quantity * row["Price"]) / (holdings_now.loc[holdings_change, "Quantity"] + delta_quantity)
+                        delta_quantity * row.Price) / (holdings_now.loc[holdings_change, "Quantity"] + delta_quantity)
+                    holdings_now.loc[holdings_change, "Quantity"] = (
+                        holdings_now.loc[holdings_change, "Quantity"] + delta_quantity)
                 # If the contract is a new holding, initialize the holding
                 else:
                     holdings_new = pd.DataFrame(
                         data={"Date": [date],
-                              "Contract": [row["Contract"]],
-                              "Type": [row["Type"]],
+                              "Contract": [row.Contract],
+                              "Type": [row.Type],
                               "Quantity": [delta_quantity],
-                              "Average Cost": [row["Price"]]},
+                              "Average Cost": [row.Price]},
                         columns=["Date", "Contract", "Type", "Average Cost", "Quantity"])
                     holdings_now = holdings_now.append(
                         holdings_new, ignore_index=True)
 
-        holdings_last = holdings_now
-        holdings = holdings.append(holdings_last)
+        holdings.append(holdings_now.copy())
 
-    holdings = holdings.reset_index(drop=True)
+    holdings = pd.concat(holdings)
+    holdings = holdings.set_index("Date")
 
     return(holdings)
