@@ -23,7 +23,7 @@ before_install:
   - conda update -q conda
 
 install:
-  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8 nose cython mkl-service
+  - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8 nose cython mkl-service fix-yahoo-finance
   - source activate testenv
   - pip install codecov
   - pip install nose_parameterized
