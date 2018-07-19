@@ -19,6 +19,8 @@ import numpy as np
 def ts_to_hc_series(df):
     """
     Convert time series data to highchart series format
+
+    Parameters
     ----------
     df : pd.Series, pd.DataFrame
         A pandas dataframe with datetime as index
@@ -41,6 +43,8 @@ def ts_to_hc_series(df):
 def highstock_line(hc_data, title=None, width="800px", height="600px"):
     """
     Convert time series data to highchart series format
+
+    Parameters
     ----------
     hc_data : JSON
         A highchart JSON with datetime as index and cumulative_returns as
