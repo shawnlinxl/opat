@@ -16,6 +16,8 @@
 import pandas as pd
 from datetime import datetime
 
+import fix_yahoo_finance as yf
+
 
 def create_holdings(trades, start_date=None, end_date=None):
     """
@@ -115,4 +117,62 @@ def create_holdings(trades, start_date=None, end_date=None):
     holdings = pd.concat(holdings)
     holdings = holdings.set_index("Date")
 
-    return(holdings)
+    return holdings
+
+
+def get_holdings_equity_price(holdings, source="yahoo", start_date=None, end_date=None):
+    """Get the price data that corresponds to the holdings data
+
+    Parameters
+    ----------
+    holdings : pandas.DataFrame
+        holdings data, must have:
+            - Date: index
+            - Contract: name of the stock traded
+            - Type: the type of the contract must be US Equity
+    source : str, optional
+        where to retrieve the price information from (the default is "yahoo",
+        which currently uses fix-yahoo-finance and scrapes from yahoo)
+    start_date : str, optional
+        string of date in %Y-%m-%d. If given, truncate the holdings to start on
+        or after the start_date (the default is None, which does not do any
+        truncation)
+    end_date : str, optional
+        string of date in %Y-%m-%d. If given, truncate the holdings to end on
+        or before the end_date (the default is None, which does not do any
+        truncation)
+
+    Returns
+    -------
+    price_data: pandas.DataFrame
+        dataframe with:
+            - Date: index
+            - Open
+            - High
+            - Low
+            - Close
+            - Adj Close
+            - Volume
+            - Ticker
+    """
+
+    holdings = holdings[holdings["Type"] == "US Equity"]
+    if start_date is not None:
+        holdings = holdings[holdings.index >= start_date]
+    if end_date is not None:
+        holdings = holdings[holdings.index <= end_date]
+
+    tickers = holdings["Contract"].unique()
+    price_data = list()
+    for ticker in tickers:
+        holding_dates = holdings[holdings["Contract"] == ticker].index
+        holding_min = holding_dates.min()
+        holding_max = holding_dates.max()
+        if source is "yahoo":
+            prices = yf.download(
+                [ticker], start=holding_min, end=holding_max, progress=False)
+        prices["Ticker"] = ticker
+        price_data.append(prices)
+
+    price_data = pd.concat(price_data)
+    return price_data
