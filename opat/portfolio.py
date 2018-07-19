@@ -20,6 +20,8 @@ from datetime import datetime
 def create_holdings(trades, start_date=None, end_date=None):
     """
     Aggregate trade data to create day by date holdings information
+
+    Parameters
     ----------
     trades : pd.Dataframe of trade reccords
         trades should have the following columns:

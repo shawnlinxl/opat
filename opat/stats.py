@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 def total_return(returns):
     """
     Compute total return from simple returns.
+
     Parameters
     ----------
     returns : pd.Series of periodic returns
@@ -47,6 +48,7 @@ def total_return(returns):
 def cum_return(returns):
     """
     Compute cumulative returns from simple returns.
+
     Parameters
     ----------
     returns : pd.Series of periodic returns
@@ -73,6 +75,7 @@ def cum_return(returns):
 def vami(returns, starting_value=1000):
     """
     Compute VAMI (Value Added Monthly Index) from simple returns.
+
     Parameters
     ----------
     returns : pd.Series, np.ndarray, or pd.DataFrame
@@ -103,6 +106,7 @@ def vami(returns, starting_value=1000):
 def weekly_return(returns):
     """
     Compute weekly returns from higher frequency returns
+
     Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a week
@@ -129,6 +133,7 @@ def weekly_return(returns):
 def monthly_return(returns):
     """
     Compute monthly returns from higher frequency returns
+
     Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a month
@@ -155,6 +160,7 @@ def monthly_return(returns):
 def quarterly_return(returns):
     """
     Compute quarterly returns from higher frequency returns
+
     Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a quarter
@@ -181,6 +187,7 @@ def quarterly_return(returns):
 def annual_return(returns):
     """
     Compute annual returns from higher frequency returns
+
     Parameters
     ----------
     returns : pd.Series of returns with periodicity shorter than a year
@@ -207,6 +214,7 @@ def annual_return(returns):
 def period_return(returns, period):
     """
     Convert higher frequency returns
+
     Parameters
     ----------
     returns : pd.Series of returns with higher frequency than the target
@@ -238,6 +246,7 @@ def period_return(returns, period):
 def annualized_return(returns, start_date=None, end_date=None):
     """
     Convert periodic returns into annualized return
+
     Parameters
     ----------
     returns : pd.Series of returns
@@ -276,6 +285,7 @@ def annualized_return(returns, start_date=None, end_date=None):
 def annualized_std(returns, start_date=None, end_date=None):
     """
     Compute annualized standard deviation (volatility) from periodic returns
+
     Parameters
     ----------
     returns : pd.Series of returns
