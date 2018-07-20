@@ -9,7 +9,8 @@ from opat.stats import (cum_return,
 from opat.plot import (ts_to_hc_series,
                        highstock_line,)
 
-from opat.portfolio import (create_holdings,)
+from opat.portfolio import (create_holdings,
+                            get_holdings_equity_price)
 
 from opat.io import read_ts_csv
 
@@ -19,6 +20,7 @@ __location__ = os.path.realpath(os.path.join(
 
 returns_data = read_ts_csv(__location__ + '/test_data/fund_return.csv')
 trade_data = read_ts_csv(__location__ + '/test_data/trade_log.csv')
+price_data = read_ts_csv(__location__ + '/test_data/price_data.csv')
 
 print(returns_data.head())
 print(cum_return(returns_data).head())
@@ -36,4 +38,6 @@ html_string = highstock_line(hc_series, title="VAMI")
 with open(__location__ + '/examples/vami.html', 'w') as html_file:
     html_file.write(html_string)
 
-print(create_holdings(trade_data))
+
+price_data = get_holdings_equity_price(create_holdings(trade_data))
+price_data.to_csv(__location__ + '/test_data/price_data.csv')

@@ -153,6 +153,8 @@ def get_holdings_equity_price(holdings, source="yahoo", start_date=None, end_dat
             - Close
             - Adj Close
             - Volume
+            - Dividends
+            - Stock Splits
             - Ticker
     """
 
@@ -170,7 +172,7 @@ def get_holdings_equity_price(holdings, source="yahoo", start_date=None, end_dat
         holding_max = holding_dates.max()
         if source is "yahoo":
             prices = yf.download(
-                [ticker], start=holding_min, end=holding_max, progress=False)
+                [ticker], start=holding_min, end=holding_max, actions=True, progress=False)
         prices["Ticker"] = ticker
         price_data.append(prices)
 
