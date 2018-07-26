@@ -47,7 +47,6 @@ def create_holdings(trades, start_date=None, end_date=None):
             - Date: index column
             - Contract: the name/ticker of the product being held
             - Type:  the type of the product e.g. US Equity/FX
-            - Average Cost: weighted average cost of holdings
             - Quantity: number of contracts held
     """
     # Set default start_date and end_date if not provided
@@ -61,61 +60,29 @@ def create_holdings(trades, start_date=None, end_date=None):
     else:
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-    # Create dataframe for output
-    holdings_now = pd.DataFrame(
-        columns=["Date", "Contract", "Type", "Average Cost", "Quantity"])
+    # Merge the action and quantity column into 1
+    # First combine each day's trading into 1 number by contract,
+    # then use the cumulative sum to find out the holdings
+    trades["Quantity"] = trades["Quantity"] * \
+        (trades["Action"].map({"Buy": 1, "Sell": -1}))
+    holdings = trades.groupby(["Date", "Type", "Contract"])["Quantity"].sum()
+    holdings = holdings.groupby(["Type", "Contract"]).cumsum()
+    holdings = holdings.reset_index()
 
-    # Holdings will be created for every trade day between the start_date
-    # and end_date
-    trade_days = pd.date_range(start_date, end_date, freq='B')
-
-    holdings = []
-    for date in trade_days:
-        # Initiate every day's holdings as previous day's holdings
-        holdings_now["Date"] = date
-
-        # When there are trades on the date, update the holdings to reflect
-        # these changes.
-        if date in trades.index:
-            # Loop through each trade
-            execution = trades[trades.index == date]
-            for row in execution.itertuples():
-                # Buy:  positive change in quantity
-                # Sell: negative change in quantity
-                if row.Action == "Buy":
-                    delta_quantity = row.Quantity
-                elif row.Action == "Sell":
-                    delta_quantity = -row.Quantity
-                else:
-                    continue
-
-                # If the contract already exist in the current holdings,
-                # update the current holdings and recompute average cost
-                if row.Contract in holdings_now["Contract"].values:
-                    holdings_change = (
-                        holdings_now["Contract"] == row.Contract)
-                    # Average cost = (current cost * current quantity + new cost * change in quantity)/total quantity
-                    holdings_now.loc[holdings_change, "Average Cost"] = (
-                        holdings_now.loc[holdings_change, "Average Cost"] * holdings_now.loc[holdings_change, "Quantity"] +
-                        delta_quantity * row.Price) / (holdings_now.loc[holdings_change, "Quantity"] + delta_quantity)
-                    holdings_now.loc[holdings_change, "Quantity"] = (
-                        holdings_now.loc[holdings_change, "Quantity"] + delta_quantity)
-                # If the contract is a new holding, initialize the holding
-                else:
-                    holdings_new = pd.DataFrame(
-                        data={"Date": [date],
-                              "Contract": [row.Contract],
-                              "Type": [row.Type],
-                              "Quantity": [delta_quantity],
-                              "Average Cost": [row.Price]},
-                        columns=["Date", "Contract", "Type", "Average Cost", "Quantity"])
-                    holdings_now = holdings_now.append(
-                        holdings_new, ignore_index=True)
-
-        holdings.append(holdings_now.copy())
-
-    holdings = pd.concat(holdings)
+    # Expand to daily holdings
+    # First expand to wide form and fill each column, then reset index to the
+    # desired date series and gathers back to stacked form
+    holdings = holdings.pivot(index="Date", columns="Contract")
+    holdings = holdings.fillna(method="ffill")
+    dates = pd.date_range(start_date, end_date, freq='B')
+    dates.name = "Date"
+    holdings = holdings.reindex(dates, method="ffill")
+    holdings = holdings.stack("Contract")
+    holdings = holdings.reset_index()
     holdings = holdings.set_index("Date")
+
+    # Keep only non-zero holdings dates, in case contracts are sold
+    holdings = holdings[holdings["Quantity"] != 0]
 
     return holdings
 
