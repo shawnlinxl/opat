@@ -32,7 +32,7 @@ def create_holdings(trades, start_date=None, end_date=None):
         start_date {string} -- None will use the first trade date as the first holding date. Otherwise,
         only create holdings after the respective start_date. (default: {None})
         end_date {string} -- None will use the current date as the final holding date. (default: {None})
-    
+
     Returns:
         [DataFrame] -- holdings data in the following format:
             - tradeday
