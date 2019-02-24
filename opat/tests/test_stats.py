@@ -9,9 +9,6 @@ from opat.stats import (cum_return,
 
 from opat.portfolio import (create_holdings)
 
-from opat.io import read_ts_csv
-
-
 def read_ts_csv(filepath):
     """
     Load timeseries from csv, the first column must be date indices
