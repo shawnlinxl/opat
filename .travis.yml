@@ -2,18 +2,12 @@ language: python
 sudo: false
 
 python: 
-  - 2.7
-  - 3.5
-  - 3.6
+  - 3.7
 
 before_install:
   # We do this conditionally because it saves us some downloading if the
   # version is the same.
-  - if [[ "$TRAVIS_PYTHON_VERSION" == "2.7" ]]; then
-      wget https://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh;
-    else
-      wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    fi
+  - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - export PATH="$HOME/miniconda/bin:$PATH"
   # required for using mkl-service
@@ -25,7 +19,6 @@ before_install:
 install:
   - conda create -n testenv --yes python=$TRAVIS_PYTHON_VERSION numpy pandas flake8 nose cython mkl-service
   - source activate testenv
-  - pip install fix-yahoo-finance
   - pip install codecov
   - pip install nose_parameterized
 
