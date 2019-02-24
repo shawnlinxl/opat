@@ -16,8 +16,6 @@
 import pandas as pd
 from datetime import datetime
 
-import fix_yahoo_finance as yf
-
 
 def create_holdings(trades, start_date=None, end_date=None):
     """ Aggregate trade data to create day by date holdings information
