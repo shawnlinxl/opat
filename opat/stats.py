@@ -272,8 +272,7 @@ def annualized_return(returns, start_date=None, end_date=None):
     else:
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-    diff_in_years = ((end_date - start_date).total_seconds() /
-                     timedelta(days=365.25).total_seconds())
+    diff_in_years = ((end_date - start_date).total_seconds() / timedelta(days=365.25).total_seconds())
 
     result = total_return(result)
     result = (result.add(1) ** (1 / diff_in_years)) - 1
