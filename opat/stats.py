@@ -250,10 +250,10 @@ def annualized_return(returns, start_date=None, end_date=None):
     Parameters
     ----------
     returns : pd.Series of returns
-    start_date\end_date : string in %Y%m%d. Defaults to None. If given, use
-    start\end as the start\end date of the series. This is useful for series
+    start_date end_date : string in %Y%m%d. Defaults to None. If given, use
+    start or end as the start or end date of the series. This is useful for series
     that's already in a lower frequency (e.g. monthly returns) but the exact
-    start\end dates are known. Providing start\end in this case will generate
+    start or end dates are known. Providing start end in this case will generate
     more accurate annualized returns.
 
     Returns
@@ -289,10 +289,10 @@ def annualized_std(returns, start_date=None, end_date=None):
     Parameters
     ----------
     returns : pd.Series of returns
-    start_date\end_date : string in %Y%m%d. Defaults to None. If given, use
-    start\end as the start\end date of the series. This is useful for series
+    start_date or end_date : string in %Y%m%d. Defaults to None. If given, use
+    start or end as the start or end date of the series. This is useful for series
     that's already in a lower frequency (e.g. monthly returns) but the exact
-    start\end dates are known. Providing start\end in this case will generate
+    start or end dates are known. Providing start end in this case will generate
     more accurate annualized standard deviations.
 
     Returns
@@ -311,8 +311,7 @@ def annualized_std(returns, start_date=None, end_date=None):
     else:
         end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
-    diff_in_years = ((end_date - start_date).total_seconds() /
-                     timedelta(days=365.25).total_seconds())
+    diff_in_years = ((end_date - start_date).total_seconds() / timedelta(days=365.25).total_seconds())
 
     result = result.std() * ((result.count() / diff_in_years) ** 0.5)
 
