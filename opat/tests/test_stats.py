@@ -33,7 +33,6 @@ __location__ = os.path.realpath(os.path.join(
 
 returns_data = read_ts_csv(__location__ + '/test_data/fund_return.csv')
 trade_data = read_ts_csv(__location__ + '/test_data/trade_log.csv')
-price_data = read_ts_csv(__location__ + '/test_data/price_data.csv')
 
 print(returns_data.head())
 print(cum_return(returns_data).head())
