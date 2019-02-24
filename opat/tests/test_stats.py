@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 
 from opat.stats import (cum_return,
                         vami,
@@ -9,6 +10,25 @@ from opat.stats import (cum_return,
 from opat.portfolio import (create_holdings)
 
 from opat.io import read_ts_csv
+
+
+def read_ts_csv(filepath):
+    """
+    Load timeseries from csv, the first column must be date indices
+    ----------
+    filepath: path to the time series csv file
+
+    Returns
+    -------
+    time indexed Pandas Dataframe
+    """
+    result = pd.read_csv(filepath,
+                         parse_dates=[0],
+                         header=0,
+                         index_col=0)
+
+    return(result)
+
 
 __location__ = os.path.realpath(os.path.join(
     os.getcwd(), os.path.dirname(__file__)))
