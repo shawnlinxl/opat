@@ -44,12 +44,12 @@ def create_holdings(trades, start_date=None, end_date=None):
     if start_date is None:
         start_date = trades["tradeday"].min().date()
     else:
-        start_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
 
     if end_date is None:
-        end_date = datetime.datetime.now().date()
+        end_date = datetime.now().date()
     else:
-        end_date = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
 
     # Merge the action and quantity column into 1
     # First combine each day's trading into 1 number by contract,
