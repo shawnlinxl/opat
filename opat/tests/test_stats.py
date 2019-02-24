@@ -10,7 +10,8 @@ from opat.portfolio import (create_holdings)
 
 from opat.io import read_ts_csv
 
-__location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+__location__ = os.path.realpath(os.path.join(
+    os.getcwd(), os.path.dirname(__file__)))
 
 returns_data = read_ts_csv(__location__ + '/test_data/fund_return.csv')
 trade_data = read_ts_csv(__location__ + '/test_data/trade_log.csv')
@@ -25,3 +26,4 @@ print(period_return(returns_data, "year").head())
 print(period_return(returns_data, "quarter").head())
 print(annualized_return(returns_data))
 print(annualized_std(returns_data))
+print(create_holdings(trade_data).head())
