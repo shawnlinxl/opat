@@ -12,7 +12,7 @@ performance and risk analysis of financial portfolios developed by Shawn Lin
 To install opat, run:
 
 ```bash
-python setup.py install
+pip install opat
 ```
 
 ## Features
@@ -20,5 +20,5 @@ python setup.py install
 ### Statistics
 Provide basic portfolio performance and risk statistics
 
-### IO
-Read common format of financial time series
+### Portfolio
+Common portfolio aggregation tools.
