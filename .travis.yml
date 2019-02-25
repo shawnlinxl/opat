@@ -33,6 +33,7 @@ after_script:
 
 notifications:
   email: false
+  slack: opat:zJw7E6dS5v0DVrDkbYZjOFjO
 
 branches:
   only:
