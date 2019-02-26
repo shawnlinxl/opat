@@ -16,6 +16,7 @@
 import pandas as pd
 from datetime import datetime
 
+
 def create_holdings(trades):
     """ Aggregate trade data to create day by date holdings information
 
@@ -71,7 +72,7 @@ def create_holdings(trades):
 
 def create_pnl(trades, prices):
     """Create daily portfolio dollar pnl from holdings and trades
-    
+
     Arguments:
         trades {DataFrame} -- Daily trade data
         prices {DataFrame} -- Daily price data
@@ -93,20 +94,24 @@ def create_pnl(trades, prices):
         value["close"] = value["close"].fillna(method="ffill")
         value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
         value["price_change"] = value["close"] - value["close"].shift(1)
-        value["pnl"] = value["price_change"] * value["prev_holding"] + value["dividend"] * value["prev_holding"]
+        value["pnl"] = value["price_change"] * value["prev_holding"] + \
+            value["dividend"] * value["prev_holding"]
         value = value.reset_index()
-        holdings_pnl = holdings_pnl.append(value[["tradeday", "ticker", "pnl"]], ignore_index = True)
+        holdings_pnl = holdings_pnl.append(
+            value[["tradeday", "ticker", "pnl"]], ignore_index=True)
 
     for key, value in trades.groupby("ticker"):
         value = value.set_index("tradeday")
         value["close"] = value["close"].fillna(method="ffill")
         value["price_change"] = value["close"] - value["price"]
-        value["pnl"] = value["price_change"] * value["quantity"] * value["action"].map({"Buy":1, "Sell": -1})
+        value["pnl"] = value["price_change"] * value["quantity"] * \
+            value["action"].map({"Buy": 1, "Sell": -1})
         value = value.reset_index()
-        trades_pnl = trades_pnl.append(value[["tradeday", "ticker", "pnl"]], ignore_index = True)
+        trades_pnl = trades_pnl.append(
+            value[["tradeday", "ticker", "pnl"]], ignore_index=True)
 
     # Combine pnl into pnl by ticker
-    pnl = holdings_pnl.append(trades_pnl, ignore_index = True)
+    pnl = holdings_pnl.append(trades_pnl, ignore_index=True)
     pnl = pnl.groupby(["tradeday", "ticker"]).sum()
 
     return(pnl)
