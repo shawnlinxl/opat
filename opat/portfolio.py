@@ -16,8 +16,7 @@
 import pandas as pd
 from datetime import datetime
 
-
-def create_holdings(trades, start_date=None, end_date=None):
+def create_holdings(trades):
     """ Aggregate trade data to create day by date holdings information
 
     Arguments:
@@ -40,16 +39,9 @@ def create_holdings(trades, start_date=None, end_date=None):
             - quantity: number of contracts held
     """
 
-    # Set default start_date and end_date if not provided
-    if start_date is None:
-        start_date = trades["tradeday"].min().date()
-    else:
-        start_date = datetime.strptime(start_date, "%Y-%m-%d")
-
-    if end_date is None:
-        end_date = datetime.now().date()
-    else:
-        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+    # Set start_date and end_date
+    start_date = trades["tradeday"].min().date()
+    end_date = datetime.now().date()
 
     # Merge the action and quantity column into 1
     # First combine each day's trading into 1 number by contract,
@@ -75,3 +67,44 @@ def create_holdings(trades, start_date=None, end_date=None):
     holdings = holdings[holdings["quantity"] != 0]
 
     return holdings
+
+
+def create_pnl(trades, prices):
+    """Create daily portfolio dollar pnl from holdings and trades
+    
+    Arguments:
+        trades {DataFrame} -- Daily trade data
+        prices {DataFrame} -- Daily price data
+    """
+
+    # Create Holdings from trades
+    holdings = create_holdings(trades)
+
+    # Merge holdings and trades with price data
+    holdings = holdings.merge(prices, how="left", on=["tradeday", "ticker"])
+    trades = trades.merge(prices, how="left", on=["tradeday", "ticker"])
+
+    # Calculate pnl from holdings and new trades
+    holdings_pnl = pd.DataFrame()
+    trades_pnl = pd.DataFrame()
+
+    for key, value in holdings.groupby("ticker"):
+        value = value.set_index("tradeday")
+        value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
+        value["price_change"] = value["close"] - value["close"].shift(1)
+        value["pnl"] = value["price_change"] * value["prev_holding"] + value["dividend"] * value["prev_holding"]
+        value = value.reset_index()
+        holdings_pnl = holdings_pnl.append(value[["tradeday", "ticker", "pnl"]], ignore_index = True)
+
+    for key, value in trades.groupby("ticker"):
+        value = value.set_index("tradeday")
+        value["price_change"] = value["close"] - value["price"]
+        value["pnl"] = value["price_change"] * value["quantity"] * value["action"].map({"Buy":1, "Sell": -1})
+        value = value.reset_index()
+        trades_pnl = trades_pnl.append(value[["tradeday", "ticker", "pnl"]], ignore_index = True)
+
+    # Combine pnl into pnl by ticker
+    pnl = holdings_pnl.append(trades_pnl, ignore_index = True)
+    pnl = pnl.groupby(["tradeday", "ticker"]).sum()
+
+    return(pnl)
