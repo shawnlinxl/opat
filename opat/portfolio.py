@@ -17,7 +17,7 @@ import pandas as pd
 from datetime import datetime
 
 
-def create_holdings(trades, splits):
+def create_holdings(trades, splits=None):
     """ Aggregate trade data to create day by date holdings information
 
     Arguments:
@@ -28,16 +28,14 @@ def create_holdings(trades, splits):
             - quantity: number of contracts bought/sold
             - action: whether this is buy/sell
 
-        splits {DataFrame} -- split records for each ticker
+
+
+    Keyword Arguments:
+        splits {DataFrame} -- split records for each ticker (default: {None})
             splits should have the following columns:
             - tradeday
             - ticker
             - split: the split ratio
-
-    Keyword Arguments:
-        start_date {string} -- None will use the first trade date as the first holding date. Otherwise,
-        only create holdings after the respective start_date. (default: {None})
-        end_date {string} -- None will use the current date as the final holding date. (default: {None})
 
     Returns:
         [DataFrame] -- holdings data in the following format:
@@ -73,24 +71,25 @@ def create_holdings(trades, splits):
     # Keep only non-zero holdings dates, in case contracts are sold
     holdings = holdings[holdings["quantity"] != 0]
 
-    # Merge with splits and add split to holdings
-    splits = splits[["tradeday", "ticker", "split"]]
-    splits = holdings.merge(splits, how="left", on=["tradeday", "ticker"])
-    splits["split"] = splits["split"].fillna(value=1)
+    if splits is not None:
 
-    holdings = pd.DataFrame()
+        # Merge with splits and add split to holdings
+        splits = splits[["tradeday", "ticker", "split"]]
+        splits = holdings.merge(splits, how="left", on=["tradeday", "ticker"])
+        splits["split"] = splits["split"].fillna(value=1)
 
-    for _, value in splits.groupby("ticker"):
-        value = value.set_index("tradeday")
-        value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
-        value["quantity"] = value["prev_holding"] * \
-            (value["split"] - 1) + value["quantity"]
-        value = value.reset_index()
-        holdings = holdings.append(
-            value[["tradeday", "ticker", "quantity"]], ignore_index=True)
+        holdings = pd.DataFrame()
 
-    holdings = holdings.sort_values(by=["tradeday", "ticker"])
+        for _, value in splits.groupby("ticker"):
+            value = value.set_index("tradeday")
+            value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
+            value["quantity"] = value["prev_holding"] * \
+                (value["split"] - 1) + value["quantity"]
+            value = value.reset_index()
+            holdings = holdings.append(
+                value[["tradeday", "ticker", "quantity"]], ignore_index=True)
 
+    holdings = holdings.sort_values(by=["tradeday", "ticker"]).reset_index(drop=True)
     return holdings
 
 
