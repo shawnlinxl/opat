@@ -17,7 +17,7 @@ import pandas as pd
 from datetime import datetime
 
 
-def create_holdings(trades):
+def create_holdings(trades, splits):
     """ Aggregate trade data to create day by date holdings information
 
     Arguments:
@@ -27,6 +27,12 @@ def create_holdings(trades):
             - ticker: the name/ticker of the product being traded
             - quantity: number of contracts bought/sold
             - action: whether this is buy/sell
+
+        splits {DataFrame} -- split records for each ticker
+            splits should have the following columns:
+            - tradeday
+            - ticker
+            - split: the split ratio
 
     Keyword Arguments:
         start_date {string} -- None will use the first trade date as the first holding date. Otherwise,
@@ -67,6 +73,24 @@ def create_holdings(trades):
     # Keep only non-zero holdings dates, in case contracts are sold
     holdings = holdings[holdings["quantity"] != 0]
 
+    # Merge with splits and add split to holdings
+    splits = splits[["tradeday", "ticker", "split"]]
+    splits = holdings.merge(splits, how="left", on=["tradeday", "ticker"])
+    splits["split"] = splits["split"].fillna(value=1)
+
+    holdings = pd.DataFrame()
+
+    for _, value in splits.groupby("ticker"):
+        value = value.set_index("tradeday")
+        value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
+        value["quantity"] = value["prev_holding"] * \
+            (value["split"] - 1) + value["quantity"]
+        value = value.reset_index()
+        holdings = holdings.append(
+            value[["tradeday", "ticker", "quantity"]], ignore_index=True)
+
+    holdings = holdings.sort_values(by=["tradeday", "ticker"])
+
     return holdings
 
 
@@ -75,11 +99,11 @@ def create_pnl(trades, prices):
 
     Arguments:
         trades {DataFrame} -- Daily trade data
-        prices {DataFrame} -- Daily price data
+        prices {DataFrame} -- Daily price data, with dividend and split information
     """
 
     # Create Holdings from trades
-    holdings = create_holdings(trades)
+    holdings = create_holdings(trades, prices)
 
     # Merge holdings and trades with price data
     holdings = holdings.merge(prices, how="left", on=["tradeday", "ticker"])
@@ -114,4 +138,4 @@ def create_pnl(trades, prices):
     pnl = holdings_pnl.append(trades_pnl, ignore_index=True)
     pnl = pnl.groupby(["tradeday", "ticker"]).sum()
 
-    return(pnl)
+    return pnl
