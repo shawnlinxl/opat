@@ -89,7 +89,7 @@ def create_pnl(trades, prices):
     holdings_pnl = pd.DataFrame()
     trades_pnl = pd.DataFrame()
 
-    for key, value in holdings.groupby("ticker"):
+    for _, value in holdings.groupby("ticker"):
         value = value.set_index("tradeday")
         value["close"] = value["close"].fillna(method="ffill")
         value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
@@ -100,7 +100,7 @@ def create_pnl(trades, prices):
         holdings_pnl = holdings_pnl.append(
             value[["tradeday", "ticker", "pnl"]], ignore_index=True)
 
-    for key, value in trades.groupby("ticker"):
+    for _, value in trades.groupby("ticker"):
         value = value.set_index("tradeday")
         value["close"] = value["close"].fillna(method="ffill")
         value["price_change"] = value["close"] - value["price"]
