@@ -7,7 +7,7 @@ from opat.stats import (cum_return,
                         annualized_return,
                         annualized_std,)
 
-from opat.portfolio import (create_holdings, create_pnl)
+from opat.portfolio import (create_holdings, create_pnl, create_nav)
 
 
 def read_ts_csv(filepath):
@@ -38,6 +38,9 @@ trade_data = pd.read_csv(__location__ + '/test_data/trades.csv',
 price_data = pd.read_csv(__location__ + '/test_data/prices.csv',
                          parse_dates=[0],
                          header=0)
+flow_data = pd.read_csv(__location__ + '/test_data/flows.csv',
+                        parse_dates=[0],
+                        header=0)
 print(trade_data.head())
 print(returns_data.head())
 print(cum_return(returns_data).head())
@@ -51,3 +54,4 @@ print(annualized_std(returns_data))
 print(create_holdings(trade_data, price_data).head())
 print(create_holdings(trade_data).head())
 print(create_pnl(trade_data, price_data).head())
+print(create_nav(trade_data, price_data, flow_data))

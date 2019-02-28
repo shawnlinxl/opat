@@ -89,7 +89,8 @@ def create_holdings(trades, splits=None):
             holdings = holdings.append(
                 value[["tradeday", "ticker", "quantity"]], ignore_index=True)
 
-    holdings = holdings.sort_values(by=["tradeday", "ticker"]).reset_index(drop=True)
+    holdings = holdings.sort_values(
+        by=["tradeday", "ticker"]).reset_index(drop=True)
     return holdings
 
 
@@ -138,3 +139,78 @@ def create_pnl(trades, prices):
     pnl = pnl.groupby(["tradeday", "ticker"]).sum()
 
     return pnl
+
+
+def create_nav(trades, prices, flows):
+    """Create dollar nav for each position
+    
+    Arguments:
+        trades {DataFrame} -- Daily trade data
+        prices {DataFrame} -- Daily price data, with dividend and split information
+        flows {DataFrame} --  Cash flow data of deposit and withdrawl
+    """
+
+    # Create holdings
+    holdings = create_holdings(trades, prices)
+    holdings = holdings.merge(prices, how="left", on=["tradeday", "ticker"])
+    holdings["close"] = holdings.groupby(
+        ["ticker"])["close"].fillna(method="ffill")
+
+    # Start date of nav is the first day of flows
+    # End date of nav is the last day we have holdings
+    start_date = flows["tradeday"].min().date()
+    end_date = holdings["tradeday"].max().date()
+
+    # Create empty dataframe of dates for merging with
+    # nav data later
+    dates = pd.date_range(start_date, end_date, freq='B')
+    dates.name = "tradeday"
+
+    # Create daily cumulative cashflow resulted from
+    # deposit and withdrawal
+    cash = flows[["tradeday", "amount"]]
+    cash = cash.groupby(["tradeday"]).sum()
+    cash["nav"] = cash["amount"].cumsum()
+    cash = cash["nav"]
+    cash = cash.reindex(dates, method="ffill")
+
+    # Create daily cumulative dividend payout information
+    dividend = pd.DataFrame()
+    for _, value in holdings.groupby("ticker"):
+        value = value.set_index("tradeday")
+        value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
+        value["nav"] = value["dividend"] * value["prev_holding"]
+        value = value.reset_index()
+        dividend = dividend.append(
+            value[["tradeday", "nav"]], ignore_index=True)
+    dividend = dividend.groupby(["tradeday"]).sum()
+    dividend["nav"] = dividend["nav"].cumsum()
+    dividend = dividend.reindex(dates, method="ffill")
+
+    # Create daily cumulative cashflow resulted from trading
+    trades["nav"] = -trades["price"] * trades["quantity"] * \
+        trades["action"].map({"Buy": 1, "Sell": -1})
+    trades = trades.groupby(["tradeday"]).sum()
+    trades["nav"] = trades["nav"].cumsum()
+    trades = trades.reindex(dates, method="ffill")
+
+    # Combine cumulative cashflows from deposit, withdrawl, dividends and
+    # trading together into daily cash balances
+    cash = cash.add(trades["nav"], fill_value=0).add(
+        dividend["nav"], fill_value=0)
+    cash = cash.reset_index()
+    cash["type"] = "cash"
+    cash["ticker"] = ""
+    cash = cash[["tradeday", "type", "ticker", "nav"]]
+
+    # Create market to market daily holdings' nav
+    holdings["nav"] = holdings.groupby(["tradeday", "ticker"], group_keys=False).apply(
+        lambda x: x["quantity"] * x["close"])
+    holdings["type"] = "equity"
+    holdings = holdings[["tradeday", "type", "ticker", "nav"]]
+
+    # Combine cash balances with holding balances
+    nav = cash.append(holdings, ignore_index=True).sort_values(
+        by=["tradeday", "type", "ticker"]).reset_index(drop=True)
+
+    return nav
