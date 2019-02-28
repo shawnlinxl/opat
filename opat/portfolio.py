@@ -143,7 +143,7 @@ def create_pnl(trades, prices):
 
 def create_nav(trades, prices, flows):
     """Create dollar nav for each position
-    
+
     Arguments:
         trades {DataFrame} -- Daily trade data
         prices {DataFrame} -- Daily price data, with dividend and split information
