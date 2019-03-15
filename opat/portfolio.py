@@ -44,6 +44,8 @@ def create_holdings(trades, splits=None):
             - quantity: number of contracts held
     """
 
+    trades_use = trades.copy()
+
     # Set start_date and end_date
     start_date = trades["tradeday"].min().date()
     end_date = datetime.now().date()
@@ -51,9 +53,9 @@ def create_holdings(trades, splits=None):
     # Merge the action and quantity column into 1
     # First combine each day's trading into 1 number by contract,
     # then use the cumulative sum to find out the holdings
-    trades["quantity"] = trades["quantity"] * \
-        (trades["action"].map({"Buy": 1, "Sell": -1}))
-    holdings = trades.groupby(["tradeday", "ticker"])["quantity"].sum()
+    trades_use["quantity"] = trades_use["quantity"] * \
+        (trades_use["action"].map({"Buy": 1, "Sell": -1}))
+    holdings = trades_use.groupby(["tradeday", "ticker"])["quantity"].sum()
     holdings = holdings.groupby(["ticker"]).cumsum()
     holdings = holdings.reset_index()
 
@@ -73,14 +75,17 @@ def create_holdings(trades, splits=None):
 
     if splits is not None:
 
+        splits_use = splits.copy()
+
         # Merge with splits and add split to holdings
-        splits = splits[["tradeday", "ticker", "split"]]
-        splits = holdings.merge(splits, how="left", on=["tradeday", "ticker"])
-        splits["split"] = splits["split"].fillna(value=1)
+        splits_use = splits_use[["tradeday", "ticker", "split"]]
+        splits_use = holdings.merge(
+            splits_use, how="left", on=["tradeday", "ticker"])
+        splits_use["split"] = splits_use["split"].fillna(value=1)
 
         holdings = pd.DataFrame()
 
-        for _, value in splits.groupby("ticker"):
+        for _, value in splits_use.groupby("ticker"):
             value = value.set_index("tradeday")
             value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
             value["quantity"] = value["prev_holding"] * \
@@ -102,12 +107,17 @@ def create_pnl(trades, prices):
         prices {DataFrame} -- Daily price data, with dividend and split information
     """
 
+    trades_use = trades.copy()
+    prices_use = prices.copy()
+
     # Create Holdings from trades
-    holdings = create_holdings(trades, prices)
+    holdings = create_holdings(trades_use, prices_use)
 
     # Merge holdings and trades with price data
-    holdings = holdings.merge(prices, how="left", on=["tradeday", "ticker"])
-    trades = trades.merge(prices, how="left", on=["tradeday", "ticker"])
+    holdings = holdings.merge(prices_use, how="left",
+                              on=["tradeday", "ticker"])
+    trades_use = trades_use.merge(
+        prices_use, how="left", on=["tradeday", "ticker"])
 
     # Calculate pnl from holdings and new trades
     holdings_pnl = pd.DataFrame()
@@ -124,7 +134,7 @@ def create_pnl(trades, prices):
         holdings_pnl = holdings_pnl.append(
             value[["tradeday", "ticker", "pnl"]], ignore_index=True)
 
-    for _, value in trades.groupby("ticker"):
+    for _, value in trades_use.groupby("ticker"):
         value = value.set_index("tradeday")
         value["close"] = value["close"].fillna(method="ffill")
         value["price_change"] = value["close"] - value["price"]
@@ -150,15 +160,20 @@ def create_nav(trades, prices, flows):
         flows {DataFrame} --  Cash flow data of deposit and withdrawl
     """
 
+    trades_use = trades.copy()
+    prices_use = prices.copy()
+    flows_use = flows.copy()
+
     # Create holdings
-    holdings = create_holdings(trades, prices)
-    holdings = holdings.merge(prices, how="left", on=["tradeday", "ticker"])
+    holdings = create_holdings(trades_use, prices_use)
+    holdings = holdings.merge(prices_use, how="left",
+                              on=["tradeday", "ticker"])
     holdings["close"] = holdings.groupby(
         ["ticker"])["close"].fillna(method="ffill")
 
     # Start date of nav is the first day of flows
     # End date of nav is the last day we have holdings
-    start_date = flows["tradeday"].min().date()
+    start_date = flows_use["tradeday"].min().date()
     end_date = holdings["tradeday"].max().date()
 
     # Create empty dataframe of dates for merging with
@@ -168,7 +183,7 @@ def create_nav(trades, prices, flows):
 
     # Create daily cumulative cashflow resulted from
     # deposit and withdrawal
-    cash = flows[["tradeday", "amount"]]
+    cash = flows_use[["tradeday", "amount"]]
     cash = cash.groupby(["tradeday"]).sum()
     cash["nav"] = cash["amount"].cumsum()
     cash = cash["nav"]
@@ -188,15 +203,15 @@ def create_nav(trades, prices, flows):
     dividend = dividend.reindex(dates, method="ffill")
 
     # Create daily cumulative cashflow resulted from trading
-    trades["nav"] = -trades["price"] * trades["quantity"] * \
-        trades["action"].map({"Buy": 1, "Sell": -1})
-    trades = trades.groupby(["tradeday"]).sum()
-    trades["nav"] = trades["nav"].cumsum()
-    trades = trades.reindex(dates, method="ffill")
+    trades_use["nav"] = -trades_use["price"] * trades_use["quantity"] * \
+        trades_use["action"].map({"Buy": 1, "Sell": -1})
+    trades_use = trades_use.groupby(["tradeday"]).sum()
+    trades_use["nav"] = trades_use["nav"].cumsum()
+    trades_use = trades_use.reindex(dates, method="ffill")
 
     # Combine cumulative cashflows from deposit, withdrawl, dividends and
     # trading together into daily cash balances
-    cash = cash.add(trades["nav"], fill_value=0).add(
+    cash = cash.add(trades_use["nav"], fill_value=0).add(
         dividend["nav"], fill_value=0)
     cash = cash.reset_index()
     cash["type"] = "cash"
