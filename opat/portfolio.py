@@ -130,7 +130,7 @@ def create_pnl(trades, prices):
         value = value.set_index("tradeday")
         value["close"] = value["close"].fillna(method="ffill")
         value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
-        value["price_change"] = value["close"] - value["close"].shift(1)
+        value["price_change"] = value["close"] * value["split"] - value["close"].shift(1)
         value["pnl"] = value["price_change"] * value["prev_holding"] + \
             value["dividend"] * value["prev_holding"]
         value = value.reset_index()
