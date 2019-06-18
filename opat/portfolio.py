@@ -13,7 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import numpy as np
 import pandas as pd
+
 from datetime import datetime
 
 
@@ -90,6 +92,7 @@ def create_holdings(trades, splits=None):
             value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
             value["quantity"] = value["prev_holding"] * \
                 (value["split"] - 1) + value["quantity"]
+            value["quantity"] = value["quantity"].apply(np.floor)
             value = value.reset_index()
             holdings = holdings.append(
                 value[["tradeday", "ticker", "quantity"]], ignore_index=True)
