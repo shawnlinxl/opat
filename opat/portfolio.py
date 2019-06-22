@@ -90,8 +90,7 @@ def create_holdings(trades, splits=None):
         for _, value in splits_use.groupby("ticker"):
             value = value.set_index("tradeday")
             value["prev_holding"] = value["quantity"].shift(1, fill_value=0)
-            value["quantity"] = (value["prev_holding"] *
-                (value["split"] - 1)).cumsum() + value["quantity"]
+            value["quantity"] = (value["prev_holding"] * (value["split"] - 1)).cumsum() + value["quantity"]
             value["quantity"] = value["quantity"].apply(np.floor)
             value = value.reset_index()
             holdings = holdings.append(
